@@ -101,7 +101,12 @@ pragma solidity ^0.4.24;
             return("Total number of correct answers",a);
         }
         
-        
+        function getParticipantsLength()
+        public
+        returns(uint)
+        {
+            return(participants.length);
+        }
         function calculateCorrectAnswer(string _A1,string _A2,string _A3,string _A4)
         private
         returns (uint)
