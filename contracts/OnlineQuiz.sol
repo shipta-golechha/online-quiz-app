@@ -167,6 +167,7 @@ pragma solidity ^0.4.24;
                 for(uint p=0;p<ParticipantCorrectAnswers[msg.sender].length;p++){
                     val=val+(3*tFee/16)/(CorrectAnswerParticipants[ParticipantCorrectAnswers[msg.sender][p]].length);
                 }
+                delete ParticipantCorrectAnswers[msg.sender];
                 msg.sender.transfer(val);
                 ParticipantCorrectAnsCount[msg.sender] = 0;
             }
