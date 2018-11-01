@@ -6,6 +6,7 @@ contract('Unit Tests', (accounts) =>{
     const contractor = accounts[0];
     const participant1 = accounts[1];
     const participant2 = accounts[2];
+    const participant3 = accounts[2];
 
     beforeEach(async () => {
         contractInstance = await OnlineQuiz.deployed({ from: contractor });
@@ -53,6 +54,16 @@ contract('Unit Tests', (accounts) =>{
             
             Correct=await contractInstance.registerParticipants("a", "b", "b","d", { value: web3.toWei(36, "ether"),from: participant2 });
             assert.fail("participant was able to double register");
+        }
+        catch(err){
+            assert.ok(true);
+        }
+    })
+    it('Check participants more than n not allowed', async () => {
+        //Test 1
+        try{
+            const Correct=await contractInstance.registerParticipants("a", "a", "b","d", { value: web3.toWei(36, "ether"), from: participant3 }); 
+            assert.fail("participant was able to register");
         }
         catch(err){
             assert.ok(true);
@@ -306,117 +317,6 @@ contract('Full Test4(All participants give correct answer for every question)', 
         try{
             const amount=await contractInstance.TransferAmount({from: participant2 }); 
             assert.equal(amount, 27,"The participant2 should be getting amount 27 after the game gets over");
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-})
-contract('Full Test5 for 4 participants', (accounts) =>{
-    const contractor = accounts[0];
-    const participant1 = accounts[1];
-    const participant2 = accounts[2];
-    const participant3 = accounts[3];
-    const participant4 = accounts[4];
-
-
-    beforeEach(async () => {
-        contractInstance = await OnlineQuiz.deployed({ from: contractor });
-    })
-    
-    it('Register participant1', async () => {
-        //Test 6
-        try {
-            const Correct=await contractInstance.registerParticipants("a", "b", "c","d", { value: web3.toWei(36, "ether"), from: participant1 });  
-            assert.equal(Correct, 4, "Registration successful but number of correct answers should be one");
-        }
-
-        catch (err) {
-            assert.ok(true);
-        }
-    })
-    it('Register participant2', async () => {
-        //Test 6
-        try{
-            const Correct=await contractInstance.registerParticipants("b", "a", "c","d", { value: web3.toWei(36, "ether"), from: participant2 }); 
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-
-    it('Register participant3', async () => {
-        //Test 6
-        try {
-            const Correct=await contractInstance.registerParticipants("a", "b", "a","d", { value: web3.toWei(36, "ether"), from: participant3 });  
-            assert.equal(Correct, 4, "Registration successful but number of correct answers should be one");
-        }
-
-        catch (err) {
-            assert.ok(true);
-        }
-    })
-
-    it('Register participant4', async () => {
-        //Test 6
-        try {
-            const Correct=await contractInstance.registerParticipants("b", "b", "a","a", { value: web3.toWei(36, "ether"), from: participant4 });  
-            assert.equal(Correct, 4, "Registration successful but number of correct answers should be one");
-        }
-
-        catch (err) {
-            assert.ok(true);
-        }
-    })
-    it('Check amount transferred to the contractor', async () => {
-        //Test 6
-        try{
-            const amount=await contractInstance.TransferAmount({from: contractor }); 
-            assert.equal(amount, 36,"The contractor should be getting amount 18 after the game gets over");
-            
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-    it('Check amount transferred to the participant1', async () => {
-        //Test 6
-        try{
-            const amount=await contractInstance.TransferAmount({from: participant1 }); 
-            assert.equal(amount, 13,"The participant1 should be getting amount 13 after the game gets over");
-            
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-    it('Check amount transferred to participant2', async () => {
-        //Test 6
-        try{
-            const amount=await contractInstance.TransferAmount({from: participant2 }); 
-            assert.equal(amount, 27,"The participant2 should be getting amount 27 after the game gets over");
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-
-    it('Check amount transferred to participant3', async () => {
-        //Test 6
-        try{
-            const amount=await contractInstance.TransferAmount({from: participant3 }); 
-            assert.equal(amount, 27,"The participant3 should be getting amount 27 after the game gets over");
-        }
-        catch(err){
-            assert.ok(true);
-        }
-    })
-
-    it('Check amount transferred to participant4', async () => {
-        //Test 6
-        try{
-            const amount=await contractInstance.TransferAmount({from: participant4 }); 
-            assert.equal(amount, 40,"The participant2 should be getting amount 40 after the game gets over");
         }
         catch(err){
             assert.ok(true);
