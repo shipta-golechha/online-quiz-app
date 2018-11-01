@@ -1,113 +1,147 @@
 pragma solidity ^0.4.24;
     
-    contract Combinatorial_Auction {
+    contract OnlineQuiz {
         
-        string question1;   //Storing the questions 1 to 4
-        string question2;
-        string question3;
-        string question4;
+        uint n;            
+        uint tFee;
+        uint pFee;
+        uint contractFee;
+        uint total;
         
-        string answer1;     //Storing the answers 1 to 4
-        string answer2;
-        string answer3;
-        string answer4;
+        string Q1;   
+        string Q2;
+        string Q3;
+        string Q4;
         
-        uint n;             //max number of participants allowed in the quiz
-        uint totalFee;
-        uint participationFee;
-        uint quizMasterFee;
+        string A1;     
+        string A2;
+        string A3;
+        string A4;
         
-        address private quizMaster;
+        
+        address private Contractor;
         
         address[] private participants;
         
-         mapping(address => uint) correctAnswerCountMapping;
-         mapping(address => uint) public participantEarning;
-        
-        //This makes sure that quizMaster cannot become a particiant
-        modifier notQuizMaster(){
-            require(msg.sender!=quizMaster,"QuizMaster cannot become a particiant");
+        mapping(address => uint) ParticipantCorrectAnsCount;
+        mapping(uint => address[]) CorrectAnswerParticipants;
+        mapping(address =>uint[]) ParticipantCorrectAnswers;
+        modifier notContractor(){
+            require(msg.sender!=Contractor,"Contractor cannot become a particiant");
         _;}
         
-        //Everyone inputs the same participationFee
-        modifier feeEqualToPFee(uint _participationFee){
-            require(_participationFee==participationFee,"Any Fee other than participationFee is not acceptable");
+        modifier CheckIFAlreadyRegister(){
+            bool flag = false;
+            for(uint i=0;i<participants.length; i++)
+            {
+                if(msg.sender == participants[i])
+                {
+                    flag = true;
+                    break;
+                }
+            }
+            require(flag == false,"Participant Already Registered");
+
         _;}
         
-        //Checks the number of participants in the game == n
-        modifier numberOfParticipants(){
-            require(n>0,"No more participants can participate");
+        modifier participantscount(){
+            require(total<=n,"Sorry, No other Participants can participate");
         _;}
         
-        //Checks if the numberOfParticipants == n or we have reached revealDeadline
-        modifier verifyRevealDeadline(){
-            require(n==0,"More Participants are required");
+        modifier OnlyContractor(){
+            require(msg.sender==Contractor,"Only Contractor can calculate total amount to be paid!");
         _;}
         
-        constructor(string _question1,string _answer1,string _question2,string _answer2,string _question3,string _answer3,string _question4,string _answer4,uint _participationFee, uint _n) 
+        modifier CheckPayFeeEqual(uint _pFee){
+            require(_pFee==pFee,"Any Fee other than participationFee is not acceptable");
+        _;}
+
+        constructor(string _Q1,string _A1,string _Q2,string _A2,string _Q3,string _A3,string _Q4,string _A4,uint _pFee, uint _n)
         public
         {
-            question1 = _question1;
-            answer1 = _answer1;
+            Q1 = _Q1;
+            Q2 = _Q2;
+            Q3 = _Q3;
+            Q4 = _Q4;
+
+            A1 = _A1;
+            A2 = _A2;
+            A3 = _A3;
+            A4 = _A4;
             
-            question2 = _question2;
-            answer2 = _answer2;
-            
-            question3 = _question3;
-            answer3 = _answer3;
-            
-            question4 = _question4;
-            answer4 = _answer4;
-            
-            participationFee = _participationFee;
-            
+            pFee = _pFee;
             n = _n;
             
-            quizMaster = msg.sender;
+            Contractor = msg.sender;
+            contractFee = (n*pFee)/4;
             
-            totalFee = 0;
+            tFee = 0;
+            total = 0;
         }
         
-        function displayQuestion()
+        function Questions_Display()
         public
-        view                                //https://ethereum.stackexchange.com/questions/27181/remix-warnings-state-mutability-and-public-visibility
-        returns(string,string,string,string,uint)
+        view                                
+        returns(string,string,string,string)
         {
-            return(question1,question2,question3,question4,participationFee);
+            return(Q1,Q2,Q3,Q4);
         }
         
         
-        function registerParticipants(string _answer1,string _answer2,string _answer3,string _answer4)
+        function registerParticipants(string _A1,string _A2,string _A3,string _A4)
         public
         payable
-        notQuizMaster()
-        feeEqualToPFee(msg.value)
-        numberOfParticipants()
+        notContractor()
+        participantscount()
+        CheckIFAlreadyRegister()
+        CheckPayFeeEqual(msg.value)
+        returns (string,uint)
         {
-            totalFee = totalFee + participationFee;
-            calculateCorrectAnswer(_answer1,_answer2,_answer3,_answer4);
-            n=n-1;
+            tFee = tFee + pFee;
+            uint a=calculateCorrectAnswer(_A1,_A2,_A3,_A4);
+            total=total+1;
+            return("Total number of correct answers",a);
         }
         
-        
-        function calculateCorrectAnswer(string _answer1,string _answer2,string _answer3,string _answer4)
+        function getParticipantsLength()
+        public
+        view
+        returns(uint)
+        {
+            return(participants.length);
+        }
+        function calculateCorrectAnswer(string _A1,string _A2,string _A3,string _A4)
         private
+        returns (uint)
         {
             uint count=0;
-            if(compareStrings(_answer1,answer1))
+            if(checkEqual(_A1,A1)){
+                CorrectAnswerParticipants[1].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(1);
                 count++;
-            if(compareStrings(_answer2,answer2))
+            }
+            if(checkEqual(_A2,A2)){
+                CorrectAnswerParticipants[2].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(2);
                 count++;
-            if(compareStrings(_answer3,answer3))
+            }
+            if(checkEqual(_A3,A3)){
+                CorrectAnswerParticipants[3].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(3);
                 count++;
-            if(compareStrings(_answer4,answer4))
+            }
+            if(checkEqual(_A4,A4)){
+                CorrectAnswerParticipants[1].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(4);
                 count++;
+            }
             
-            correctAnswerCountMapping[msg.sender]=count;  
-            participants.push(msg.sender) -1;
+            ParticipantCorrectAnsCount[msg.sender]=count;  
+            participants.push(msg.sender) ;
+            
+            return (count);
         }
-        
-        function compareStrings (string _a, string _b)
+        function checkEqual (string _a, string _b)
         private
         pure 
         returns (bool)
@@ -117,34 +151,27 @@ pragma solidity ^0.4.24;
             return keccak256(a) == keccak256(b);
         }
         
-        function calculateAmountPad()
+        function TransferAmount()
         public
-        view
-        verifyRevealDeadline()
+        returns (string,address,uint)
         {
-            uint payableValue;
-            uint remainingFee=totalFee;
-            uint count;
-            for(uint i=0;i<participants.length;i++){
-                payableValue=0;
-                count = correctAnswerCountMapping[participants[i]];
-                payableValue = (3*count*totalFee)/16;    
+            uint val=0;
+            if(msg.sender == Contractor){
+                val=contractFee;
+                msg.sender.transfer(contractFee);
+                contractFee = 0;
                 
-                remainingFee -= payableValue;
             }
-            totalFee = remainingFee;
+            else
+            {
+
+                for(uint p=0;p<ParticipantCorrectAnswers[msg.sender].length;p++){
+                    val=val+(3*tFee/16)/(CorrectAnswerParticipants[ParticipantCorrectAnswers[msg.sender][p]].length);
+                }
+                delete ParticipantCorrectAnswers[msg.sender];
+                msg.sender.transfer(val);
+                ParticipantCorrectAnsCount[msg.sender] = 0;
+            }
+            return("total amount Earned: ",msg.sender,val);
         }
-		function withdraw()
-    public
-    {
-        if(msg.sender == quizMaster){
-            msg.sender.transfer(quizMasterFee);
-            quizMasterFee = 0;
-        }
-        else
-        {
-            msg.sender.transfer(participantEarning[msg.sender]);
-            participantEarning[msg.sender] = 0;
-        }
-    }
     }
