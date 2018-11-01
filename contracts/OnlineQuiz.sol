@@ -1,12 +1,12 @@
 pragma solidity ^0.4.24;
     
-    contract Combinatorial_Auction {
+    contract OnlineQuiz {
         uint n;            
         uint tFee;
         uint pFee;
         uint contractFee;
         uint total;
-
+        
         string Q1;   
         string Q2;
         string Q3;
@@ -26,6 +26,20 @@ pragma solidity ^0.4.24;
         
         modifier notContractor(){
             require(msg.sender!=Contractor,"Contractor cannot become a particiant");
+        _;}
+        
+        modifier CheckIFAlreadyRegister(){
+            bool flag = false;
+            for(uint i=0;i<participants.length; i++)
+            {
+                if(msg.sender == participants[i])
+                {
+                    flag = true;
+                    break;
+                }
+            }
+            require(flag == false,"Participant Already Registered");
+
         _;}
         
         modifier participantscount(){
@@ -77,6 +91,7 @@ pragma solidity ^0.4.24;
         payable
         notContractor()
         participantscount()
+        CheckIFAlreadyRegister()
         CheckPayFeeEqual(msg.value)
         returns (string,uint)
         {
