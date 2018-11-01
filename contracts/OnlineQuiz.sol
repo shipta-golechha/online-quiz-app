@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
     
     contract OnlineQuiz {
+        
         uint n;            
         uint tFee;
         uint pFee;
@@ -23,7 +24,8 @@ pragma solidity ^0.4.24;
         address[] private participants;
         
         mapping(address => uint) ParticipantCorrectAnsCount;
-        
+        mapping(uint => address[]) CorrectAnswerParticipants;
+        mapping(address =>uint[]) ParticipantCorrectAnswers;
         modifier notContractor(){
             require(msg.sender!=Contractor,"Contractor cannot become a particiant");
         _;}
@@ -112,14 +114,26 @@ pragma solidity ^0.4.24;
         returns (uint)
         {
             uint count=0;
-            if(checkEqual(_A1,A1))
+            if(checkEqual(_A1,A1)){
+                CorrectAnswerParticipants[1].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(1);
                 count++;
-            if(checkEqual(_A2,A2))
+            }
+            if(checkEqual(_A2,A2)){
+                CorrectAnswerParticipants[2].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(2);
                 count++;
-            if(checkEqual(_A3,A3))
+            }
+            if(checkEqual(_A3,A3)){
+                CorrectAnswerParticipants[3].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(3);
                 count++;
-            if(checkEqual(_A4,A4))
+            }
+            if(checkEqual(_A4,A4)){
+                CorrectAnswerParticipants[1].push(msg.sender);
+                ParticipantCorrectAnswers[msg.sender].push(4);
                 count++;
+            }
             
             ParticipantCorrectAnsCount[msg.sender]=count;  
             participants.push(msg.sender) ;
@@ -149,7 +163,10 @@ pragma solidity ^0.4.24;
             }
             else
             {
-                val=(ParticipantCorrectAnsCount[msg.sender]*3*tFee)/16;
+
+                for(uint p=0;p<ParticipantCorrectAnswers[msg.sender].length;p++){
+                    val=val+(3*tFee/16)/(CorrectAnswerParticipants[ParticipantCorrectAnswers[msg.sender][p]].length);
+                }
                 msg.sender.transfer(val);
                 ParticipantCorrectAnsCount[msg.sender] = 0;
             }
