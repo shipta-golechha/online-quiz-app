@@ -153,7 +153,7 @@ pragma solidity ^0.4.24;
         
         function TransferAmount()
         public
-        returns (string,address,uint)
+        returns (uint)
         {
             uint val=0;
             if(msg.sender == Contractor){
@@ -172,6 +172,6 @@ pragma solidity ^0.4.24;
                 msg.sender.transfer(val);
                 ParticipantCorrectAnsCount[msg.sender] = 0;
             }
-            return("total amount Earned: ",msg.sender,val);
+            return(val);
         }
     }
