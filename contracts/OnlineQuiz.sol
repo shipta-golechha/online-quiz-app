@@ -105,6 +105,7 @@ pragma solidity ^0.4.24;
         
         function getParticipantsLength()
         public
+        view
         returns(uint)
         {
             return(participants.length);
