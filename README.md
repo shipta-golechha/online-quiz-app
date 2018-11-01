@@ -1,2 +1,0 @@
-# online-quiz-app
-
